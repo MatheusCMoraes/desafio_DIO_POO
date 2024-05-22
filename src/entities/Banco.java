@@ -29,7 +29,7 @@ public class Banco {
 
 	@Override
 	public String toString() {
-		return nomeBanco + "\n" + contasClientes.toString() + "]";
+		return nomeBanco + "\n" + contasClientes.toString();
 	}
     
     

@@ -13,7 +13,7 @@ public abstract class Conta implements IConta{
     protected int agencia;
     protected int numeroConta;
     protected double saldo;
-    protected double chequeEspecial;
+    protected double chequeEspecial = 1000;
     
     protected List<Transacao> transacaoConta =  new ArrayList<Transacao>();
     
@@ -26,19 +26,31 @@ public abstract class Conta implements IConta{
     }
 
     @Override
-    public void sacar(double valor) {
+    public void sacar(double valor, boolean isTransferencia) {
     	if(saldo < valor) {
     		if(chequeEspecial < valor) {
-    			System.out.println("Saldo insuficiente");
+    			System.out.println("**** SALDO INSUFICIENTE, OPERAÇÃO CANCELADA! ****" + "\n");
     		} else {
-    			chequeEspecial -= valor;
+    			saldo -= valor;
+    			chequeEspecial += saldo;
+    			if(!isTransferencia) {
+	    			Transacao operacao = new Transacao(TipoTransacao.valueOf("SAQUE"), valor, this);
+	            	transacaoConta.add(operacao);
+    			}
     		}    		
     	}else {
     		saldo -= valor;
-    	}
-    	Transacao operacao = new Transacao(TipoTransacao.valueOf("SAQUE"), valor, this);
-    	transacaoConta.add(operacao);
+    		if(!isTransferencia) {
+	    		Transacao operacao = new Transacao(TipoTransacao.valueOf("SAQUE"), valor, this);
+	        	transacaoConta.add(operacao);
+    		}
+    	}    	
         
+    }
+    
+    @Override
+    public void sacar(double valor) {
+    	sacar(valor, false);
     }
 
     @Override
@@ -52,7 +64,7 @@ public abstract class Conta implements IConta{
     public void transferir(double valor, Conta contaDestino) {
     	Transacao operacao = new Transacao(TipoTransacao.valueOf("TRANSFERENCIA"), valor, contaDestino, this);
     	transacaoConta.add(operacao);
-        this.sacar(valor);
+        this.sacar(valor, true);
         contaDestino.depositar(valor);
     }
     
@@ -71,13 +83,17 @@ public abstract class Conta implements IConta{
     public double getSaldo() {
         return saldo;
     }
+    
+    public double getChequeEspecial() {
+    	return this.chequeEspecial;
+    }
 
     protected String imprimirInfosComuns() {
     	StringBuilder sb = new StringBuilder();
-    	
+    	sb.append("\n");
     	sb.append(String.format("Titular: %s",this.cliente.getNomeCliente()) +"\n");
     	sb.append(String.format("Agencia: %d",this.agencia) + "\n");
-    	sb.append(String.format("Conta: %d",this.numeroConta) + "n");
+    	sb.append(String.format("Conta: %d",this.numeroConta) + "\n");
     	
       return sb.toString();
         

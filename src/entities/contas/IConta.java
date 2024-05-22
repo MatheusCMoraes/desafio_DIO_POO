@@ -2,6 +2,8 @@ package entities.contas;
 
 public interface IConta {
 	
+		void sacar(double valor, boolean isTransferencia);
+		
 		void sacar(double valor);
 
 	    void depositar(double valor);
